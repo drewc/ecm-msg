@@ -83,7 +83,7 @@ program
 
     const attachments = listAttachmentsRecursively(testMsgInfo, "_");
     for (let attachment of attachments) {
-      console.log(attachment.fileName)
+      console.log(attachment)
     }
   });
 

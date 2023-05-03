@@ -7,23 +7,25 @@ const MsgReader = pkg.default ;
 
 import  { default as iconvLite } from 'iconv-lite';
 import { deEncapsulateSync } from 'rtf-stream-parser';
-
 import { decompressRTF } from '@kenjiuno/decompressrtf';
 import { escapeHTML } from '@wordpress/escape-html'
+
+import { msgInternalHtml,
+         msgInternalDoc,
+         msgDocInlineImgs,
+         inlineCidImg,
+         msgBodyHtml
+       } from '../lib/html.js'
 
 
 program
   .command('body-html <msgFilePath> [saveToHtmlFilePath]')
   .description('Parse msg file and return rtf body as HTML')
-  .action((msgFilePath, saveToHtmlFilePath) => {
+  .action(async (msgFilePath, saveToHtmlFilePath) => {
     const msgFileBuffer = fs.readFileSync(msgFilePath)
-    const testMsg = new MsgReader(msgFileBuffer)
-    testMsg.parserConfig = testMsg.parserConfig || {};
-    const testMsgInfo = testMsg.getFileData();
-    const rtfb = Buffer.from(decompressRTF(testMsgInfo.compressedRtf)),
-          rtf = deEncapsulateSync(rtfb, { decode: iconvLite.decode });
-    const html = rtf.mode === 'html' ? rtf.text : escapeHTML(rtf.text);
-    console.log(html)
+    const msg = new MsgReader(msgFileBuffer)
+    const html = await msgBodyHtml(msg);
+   console.log(html)
   });
 
 
@@ -54,7 +56,7 @@ program
           },
           recipients,
           subject,
-          body, rtf
+          body, rtf, attachments
         })
     );
   });
